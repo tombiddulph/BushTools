@@ -1,0 +1,111 @@
+@page "/"
+@using System.Text.RegularExpressions
+@using System.Text
+
+<PageTitle>BattleReportFormatter</PageTitle>
+
+<h1>Battle report formatter</h1>
+
+
+<div>
+    <div class="form-group">
+        <textarea class="form-control" @bind="_inputText" style="margin-bottom: 10px; height:300px"></textarea>
+
+    </div>
+    <div class="form-group">
+        <button class="btn btn-primary" @onclick="FormatReport">Format report</button>
+        <button class="btn btn-secondary" @onclick="() => { _hidden = true; _outputText = string.Empty; _inputText = String.Empty;}">Clear</button>
+    </div>
+    <div class="form-group">
+        <div readonly class="form-control" style="white-space: pre-line" hidden="@_hidden">@_outputText</div>
+    </div>
+</div>
+
+@code {
+        private const string Green = "+";
+        private const string Red = "-";
+        private const string None = "";
+
+    private readonly Regex _troopLineRegex = new(@"(?<=\[(range|middle|close)\] \S+ )allied|hostile");
+    private readonly Regex _gainsAndLossesRegex = new(@"(?<=You )gained|lost|earned|receiving");
+    private readonly Regex _summariesRegex = new("Disabled|Distracted|Died|Bribed|Converted");
+
+    private string _outputText = string.Empty;
+    private string _inputText = string.Empty;
+    private bool _hidden = true;
+
+    private void FormatReport()
+    {
+        _outputText = FormatReport(_inputText);
+        _hidden = false;
+    }
+
+    private string FormatReport(string message)
+    {
+        var sb = new StringBuilder();
+        var lines = message.Split("\n").ToList();
+        sb.AppendLine("\\```diff");
+
+        foreach (var line in lines)
+        {
+            var troopLineMatch = _troopLineRegex.Match(line);
+            if (troopLineMatch.Success)
+            {
+                var modifier = troopLineMatch.Value.ToLowerInvariant() switch
+                {
+                    "allied" => Green,
+                    "hostile" => Red,
+                    _ => None
+                    };
+
+                sb.AppendLine($"{modifier} {line}");
+                continue;
+            }
+
+            var summariesMatch = _summariesRegex.Match(line);
+            if (summariesMatch.Success)
+            {
+                foreach (var s in line[(line.IndexOf(":", StringComparison.Ordinal) + 1)..]
+                    .Split(".", StringSplitOptions.RemoveEmptyEntries))
+                {
+                    var modifier = None;
+
+                    if (s.IndexOf("friendlies", StringComparison.OrdinalIgnoreCase) > -1)
+                    {
+                        modifier = Green;
+                    }
+                    else if (s.IndexOf("enemies", StringComparison.OrdinalIgnoreCase) > -1)
+                    {
+                        modifier = Red;
+                    }
+
+                    sb.AppendLine($"{modifier} {summariesMatch.Value}: {s}");
+                }
+
+                continue;
+            }
+
+            var gainsAnLossesMatch = _gainsAndLossesRegex.Match(line);
+            if (gainsAnLossesMatch.Success)
+            {
+                var modifer = gainsAnLossesMatch.Value.ToLowerInvariant() switch
+                {
+                    "gained" => Green,
+                    "lost" => Red,
+                    "earned" => Green,
+                    "receiving" => Green,
+                    _ => None
+                    };
+
+                sb.AppendLine($"{modifer} {line}");
+                continue;
+            }
+
+            sb.AppendLine(line);
+        }
+
+        sb.AppendLine("\\```");
+        return sb.ToString();
+    }
+
+}
