@@ -7,7 +7,7 @@
   "linkerEnabled": true,
   "resources": {
     "assembly": {
-      "BushReport.dll": "sha256-CZYkHGqiMD3MlAjdldaNsT+EAId2w34TCo6BOzxFgJQ=",
+      "BushReport.dll": "sha256-z5s1p9vpjMsIXB+IGxCOOeichYkF6SveqDcC+Zy\/XMQ=",
       "Microsoft.AspNetCore.Components.dll": "sha256-Dl3oFc7UvL5Ln2414C8PC4QMXXnsbEO27m+A8ZlSxBc=",
       "Microsoft.AspNetCore.Components.Web.dll": "sha256-pS6neF9kpWN2HIz0ankgvM9P\/LGkoppfgrYLcKqnsOs=",
       "Microsoft.AspNetCore.Components.WebAssembly.dll": "sha256-2fbR6RpUxEMnL89Bp4BedWtQJQRpzWAu87gh1UjPAWk=",
