@@ -14,11 +14,13 @@
     </div>
     <div class="form-group">
         <button class="btn btn-primary" @onclick="FormatReport">Format report</button>
-        <button class="btn btn-secondary" @onclick="() => { _hidden = true; _outputText = string.Empty; _inputText = String.Empty;}">Clear</button>
+        <button class="btn btn-secondary" @onclick="() => { _hidden = true; _outputText = string.Empty; _inputText = string.Empty;}">Clear</button>
     </div>
-    <div class="form-group">
-        <div readonly class="form-control" style="white-space: pre-line" hidden="@_hidden">@_outputText</div>
+    <div class="form-group" hidden="@_hidden">
+        <div readonly  id="output-text" class="form-control" style="white-space: pre-line">@_outputText</div>
+        <button class="btn btn-primary" onclick="copyToClipBoard()">Copy to clipboard</button>
     </div>
+    
 </div>
 
 @code {
@@ -44,7 +46,7 @@
     {
         var sb = new StringBuilder();
         var lines = message.Split("\n").ToList();
-        sb.AppendLine("\\```diff");
+        sb.AppendLine("```diff");
 
         foreach (var line in lines)
         {
@@ -104,7 +106,7 @@
             sb.AppendLine(line);
         }
 
-        sb.AppendLine("\\```");
+        sb.AppendLine("```");
         return sb.ToString();
     }
 
